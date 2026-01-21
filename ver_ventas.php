@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once 'check_session.php';
 // Habilitar reporte de errores
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -7,6 +8,8 @@ ini_set('display_errors', 1);
 // Verificar si es una petición AJAX
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['funcion'])) {
 	include("inc/conectar.php");
+	
+
 
 	switch ($_POST['funcion']) {
 		case 'Carga_Ventas':
@@ -72,7 +75,80 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['funcion'])) {
 
 		case 'Eliminar':
 			include('inc/conectar.php');
-			$consulta->query("UPDATE ventas SET fechacancelada='" . date("Y-m-d H:i:s") . "' WHERE id_venta=" . $_POST['idventas']);
+
+			try {
+				// Iniciar transacción
+				$consulta->beginTransaction();
+
+				// 1. Verificar si la venta ya está cancelada (con manejo de errores)
+				$stmtVenta = $consulta->prepare("SELECT fechacancelada FROM ventas WHERE id_venta = ?");
+				$stmtVenta->execute([$_POST['idventas']]);
+				$venta = $stmtVenta->fetch(PDO::FETCH_ASSOC);
+
+				if (!$venta) {
+					throw new Exception("No se encontró la venta especificada");
+				}
+
+				if ($venta['fechacancelada']) {
+					throw new Exception("Esta venta ya fue cancelada anteriormente");
+				}
+
+				// 2. Obtener los detalles de la venta para devolver existencias (con consulta preparada)
+				$stmtDetalles = $consulta->prepare("SELECT id_productos, cantidad FROM ventasdetalle WHERE id_venta = ?");
+				$stmtDetalles->execute([$_POST['idventas']]);
+				$detalles = $stmtDetalles->fetchAll(PDO::FETCH_ASSOC);
+
+				if (empty($detalles)) {
+					throw new Exception("No se encontraron detalles para esta venta");
+				}
+
+				// 3. Devolver existencias a productos (con consulta preparada)
+				$stmtUpdateProductos = $consulta->prepare("UPDATE productos SET existencias = existencias + ? WHERE id_productos = ?");
+
+				foreach ($detalles as $detalle) {
+					$stmtUpdateProductos->execute([$detalle['cantidad'], $detalle['id_productos']]);
+				}
+
+				// 4. Marcar la venta como cancelada (con consulta preparada)
+				$stmtUpdateVenta = $consulta->prepare("UPDATE ventas SET fechacancelada = ? WHERE id_venta = ?");
+				$stmtUpdateVenta->execute([date("Y-m-d H:i:s"), $_POST['idventas']]);
+
+				// 5. Registrar la cancelación (con consulta preparada)
+				$stmtInsertCancelacion = $consulta->prepare("INSERT INTO cancelaciones_ventas 
+																(id_venta, id_usuario, fecha_cancelacion, motivo) 
+																VALUES (?, ?, ?, ?)");
+				$stmtInsertCancelacion->execute([
+					$_POST['idventas'],
+					$_SESSION['SISTEMA']['id_empleado'],
+					date("Y-m-d H:i:s"),
+					'Cancelación manual'
+				]);
+
+				// 6. Si era una venta a crédito, actualizar el saldo pendiente (con consulta preparada)
+				$stmtCredito = $consulta->prepare("SELECT id, saldo_pendiente FROM cuentas_por_cobrar WHERE id_venta = ?");
+				$stmtCredito->execute([$_POST['idventas']]);
+				$credito = $stmtCredito->fetch(PDO::FETCH_ASSOC);
+
+				if ($credito) {
+					$stmtUpdateCredito = $consulta->prepare("UPDATE cuentas_por_cobrar 
+															   SET estado = 'cancelado', saldo_pendiente = 0 
+															   WHERE id = ?");
+					$stmtUpdateCredito->execute([$credito['id']]);
+				}
+
+				// Confirmar transacción
+				$consulta->commit();
+
+				echo "OK";
+			} catch (Exception $e) {
+				// Revertir en caso de error
+				if ($consulta->inTransaction()) {
+					$consulta->rollBack();
+				}
+				http_response_code(500);
+				echo "Error: " . $e->getMessage();
+				error_log("Error al cancelar venta: " . $e->getMessage());
+			}
 			exit();
 
 		default:
@@ -104,16 +180,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['funcion'])) {
 			margin: 20px 0;
 			font-size: 0.9em;
 			box-shadow: 0 0 10px rgba(41, 115, 178, 0.1);
-			/* Sutil sombra azul */
 			border-radius: 10px;
 			overflow: hidden;
 			background-color: #F2EFE7;
-			/* Fondo claro */
 		}
 
 		.table thead tr {
 			background-color: #2973B2;
-			/* Azul más intenso */
 			color: white;
 			text-align: left;
 			font-weight: bold;
@@ -121,7 +194,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['funcion'])) {
 
 		.bt_custom {
 			background-color: #2973B2;
-			/* Azul turquesa */
 			color: white;
 			border: none;
 			padding: 3px 5px;
@@ -131,7 +203,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['funcion'])) {
 
 		.bt_custo {
 			background-color: #2973B2;
-			/* Azul turquesa */
 			color: white;
 			border: none;
 			padding: 8px 10px;
@@ -141,7 +212,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['funcion'])) {
 
 		.bt_custom1 {
 			background-color: #cb2626;
-			/* Azul turquesa */
 			color: white;
 			border: none;
 			padding: 3px 5px;
@@ -154,7 +224,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['funcion'])) {
 			padding: 12px 15px;
 			vertical-align: middle;
 			border-bottom: 1px solid #9ACBD0;
-			/* Borde azul claro */
 		}
 
 		.table tbody tr {
@@ -163,17 +232,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['funcion'])) {
 
 		.table tbody tr:nth-of-type(even) {
 			background-color: rgba(154, 203, 208, 0.1);
-			/* Azul claro muy suave */
 		}
 
 		.table tbody tr:last-of-type {
 			border-bottom: 2px solid #48A6A7;
-			/* Azul turquesa */
 		}
 
 		.table tbody tr:hover {
 			background-color: rgba(154, 203, 208, 0.3);
-			/* Azul claro semi-transparente */
 			transform: scale(1.005);
 		}
 
@@ -181,18 +247,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['funcion'])) {
 			width: 60px;
 			text-align: center;
 			border: 1px solid #9ACBD0;
-			/* Azul claro */
 			border-radius: 4px;
 			padding: 5px;
 			background-color: #F2EFE7;
-			/* Fondo claro */
 		}
 
 		.table .opciones button {
 			background: none;
 			border: none;
 			color: #2973B2;
-			/* Azul intenso */
 			cursor: pointer;
 			font-size: 1.2em;
 			transition: color 0.3s;
@@ -200,65 +263,84 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['funcion'])) {
 
 		.table .opciones button:hover {
 			color: #48A6A7;
-			/* Azul turquesa al pasar el mouse */
 		}
 
-		/* Estilo para los totales */
 		#total,
 		#cambio {
 			font-weight: bold;
 			color: #2973B2;
-			/* Azul intenso */
 			font-size: 1.1em;
 		}
 
-		/* Estilo para los inputs */
 		.form-control-sm {
 			border-radius: 5px;
 			border: 1px solid #9ACBD0;
-			/* Azul claro */
 			padding: 8px 12px;
 			background-color: #F2EFE7;
-			/* Fondo claro */
 		}
 
 		.table {
 			background-color: #F2EFE7;
-			/* Fondo claro con transparencia */
 			backdrop-filter: blur(5px);
-			/* Efecto de desenfoque para el fondo */
 		}
 
-		/* Alternativa: fondo de color sólido */
 		body {
 			background-color: #f0f8ff;
-			/* Azul claro muy suave */
-			/* O un gradiente */
 			background: linear-gradient(135deg, #F2EFE7 0%, #F2EFE7 50%, #F2EFE7 100%);
 		}
 
 		.banner {
 			background-color: #2973B2;
-			/* Azul intenso */
 			color: white;
 			padding: 5px;
 		}
 
-		/* Asegurar que la tabla mantenga su estructura */
 		#tablaPedidos {
 			width: 100% !important;
 		}
 
-		/* Estilos para encabezados y celdas */
 		#tablaPedidos thead th {
 			white-space: nowrap;
-			/* Evitar saltos de línea */
 			position: relative;
 		}
 
 		#tablaPedidos tbody td {
 			white-space: nowrap;
-			/* Mantener contenido en una línea */
+		}
+
+		/* Estilo para el contenedor del buscador */
+		.dataTables_filter {
+			margin-bottom: 20px;
+			/* Separa el buscador de la tabla */
+			display: flex;
+			align-items: center;
+		}
+
+		.dataTables_filter label {
+			display: flex;
+			/* Mantener el label flexible */
+			align-items: center;
+			/* Alinear verticalmente el texto y el input */
+			margin-bottom: 0;
+			/* Eliminar margen inferior predeterminado */
+			gap: 10px;
+			/* Espacio entre "Buscar:" y el input */
+			margin-bottom: 0;
+			/* Elimina el margen inferior predeterminado */
+			font-weight: bold;
+		}
+
+		.dataTables_filter input {
+			width: 400px !important;
+			/* Ajusta el ancho según necesidad */
+			height: 40px !important;
+			font-size: 16px !important;
+			margin-left: 10px;
+			/* Espacio entre el texto y el input */
+			/* Espacio entre "Buscar:" y el input */
+			padding: 8px 12px;
+			border: 1px solid #ccc;
+			border-radius: 4px;
 		}
 	</style>
 
@@ -287,26 +369,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['funcion'])) {
 								<label class="form-label"><b>Fecha Final</b></label>
 								<input type="date" class="form-control" id="fechafinal" value="<?= date('Y-m-d') ?>">
 							</div>
-							<div class="col-md-4">
-								<label class="form-label"><b>Cliente</b></label>
-								<input list="datosClientes" autocomplete="off" class="form-control" id="clientes"
-									placeholder="Buscar clientes">
-								<datalist id="datosClientes">
-									<?php
-									include("inc/conectar.php");
-									$clientes = $consulta->query("SELECT id_cliente, nombre, apellido_p, apellido_m FROM clientes ORDER BY nombre");
-									foreach ($clientes as $cli) {
-										echo "<option value='{$cli['id_cliente']}-{$cli['nombre']} {$cli['apellido_p']} {$cli['apellido_m']}'>";
-									}
-									?>
-								</datalist>
-							</div>
-							<div class="col-md-2 d-flex align-items-end">
-								<button id="btnBuscar" class="btn bt_custo">
-									<i class="bi bi-search"></i> Buscar
-								</button>
-							</div>
 						</div>
+
 
 						<div class="table-responsive table-sm compact">
 							<table id="tablaPedidos"
@@ -322,9 +386,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['funcion'])) {
 									</tr>
 								</thead>
 								<tbody id="resultados_productos">
-									<tr>
-										<td colspan="6" class="text-center">Seleccione fechas y haga clic en Buscar</td>
-									</tr>
+
 								</tbody>
 							</table>
 						</div>
@@ -336,7 +398,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['funcion'])) {
 
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
-	<!-- Reemplazar en tus scripts -->
 	<script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
 	<script>
@@ -346,13 +407,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['funcion'])) {
 
 			// Función para inicializar o recrear la DataTable
 			function initDataTable() {
-				// Destruir instancia anterior si existe
 				if (dataTable !== null) {
 					dataTable.destroy();
-					$('#tablaPedidos').empty(); // Limpiar la tabla
+					$('#tablaPedidos').empty();
 				}
 
-				// Reconstruir estructura de la tabla si es necesario
 				var table = $('#tablaPedidos');
 				if (table.find('thead').length === 0) {
 					table.append('<thead><tr><th>Folio</th><th>Fecha</th><th>Cliente</th><th>Usuario</th><th>Importe</th><th>Opciones</th></tr></thead>');
@@ -361,10 +420,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['funcion'])) {
 					table.append('<tbody id="resultados_productos"></tbody>');
 				}
 
-				// Inicializar DataTable con opciones
 				dataTable = table.DataTable({
-					"order": [[1, "desc"]], // Ordenar por fecha descendente
-					"language": { // Configuración de idioma
+					"order": [[1, "desc"]],
+					"language": {
 						"lengthMenu": "Mostrar _MENU_ registros por página",
 						"zeroRecords": "No se encontraron resultados",
 						"info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
@@ -379,17 +437,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['funcion'])) {
 						}
 					},
 					"destroy": true,
-					"retrieve": true // Permite recrear la tabla
+					"retrieve": true,
+					"initComplete": function () {
+						// Aplicar estilos después de la inicialización
+						$('.dataTables_filter input').addClass('form-control');
+						$('.dataTables_filter input').css({
+							'width': '500px',  // Ancho personalizado
+							'height': '40px',  // Altura personalizada
+							'font-size': '16px' // Tamaño de fuente más grande
+						});
+					}
 				});
 			}
 
 			// Carga inicial automática
 			Carga_Entradas();
 
-			// Cargar datos al hacer clic en Buscar
-			$('#btnBuscar').click(function () {
-				Carga_Entradas();
-			});
 
 			// También cargar al cambiar fechas o cliente
 			$('#fechainicial, #fechafinal, #clientes').on('change', function () {
@@ -401,7 +464,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['funcion'])) {
 				var fechaInicial = $("#fechainicial").val();
 				var fechaFinal = $("#fechafinal").val();
 
-				// Validar fechas
 				if (!fechaInicial || !fechaFinal) {
 					$("#resultados_productos").html('<tr><td colspan="6" class="text-center">Por favor seleccione ambas fechas</td></tr>');
 					if (dataTable !== null) {
@@ -431,12 +493,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['funcion'])) {
 						var tbody = $("#resultados_productos");
 						tbody.html(msg);
 
-						// Verificar que tenemos una estructura válida
 						if (tbody.find('tr').length > 0 &&
 							tbody.find('tr').first().find('td').length === 6) {
 							initDataTable();
 						} else {
-							// Si no es válido, limpiar DataTable
 							if (dataTable !== null) {
 								dataTable.destroy();
 								dataTable = null;
@@ -456,10 +516,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['funcion'])) {
 			// Manejar cancelación de pedidos
 			$(document).on("click", ".cancelar", function () {
 				var idventas = $(this).attr("idventas");
+				var boton = $(this);
+
 				alertify.confirm(
 					"Confirmación",
-					"¿Está seguro de cancelar este pedido? Esta acción no se puede deshacer.",
+					"¿Está seguro de cancelar este pedido? Se devolverán las existencias a inventario.",
 					function () {
+						boton.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Cancelando...');
+
 						$.ajax({
 							type: "POST",
 							url: window.location.href,
@@ -467,12 +531,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['funcion'])) {
 								funcion: "Eliminar",
 								idventas: idventas
 							},
-							success: function () {
-								alertify.success("Pedido cancelado correctamente");
-								Carga_Entradas(); // Recargar los datos
+							success: function (response) {
+								if (response === "OK") {
+									alertify.success("Venta cancelada y existencias devueltas");
+
+									boton.closest('tr').addClass('bg-danger');
+									boton.remove();
+
+									setTimeout(function () {
+										Carga_Entradas();
+									}, 1000);
+								} else {
+									alertify.error("Error: " + response);
+									boton.html('<svg xmlns="http://www.w3.org/2000/svg" width="40" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/></svg>');
+								}
 							},
-							error: function () {
-								alertify.error("Error al cancelar el pedido");
+							error: function (xhr, status, error) {
+								alertify.error("Error al cancelar: " + error);
+								boton.html('<svg xmlns="http://www.w3.org/2000/svg" width="40" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/></svg>');
 							}
 						});
 					},

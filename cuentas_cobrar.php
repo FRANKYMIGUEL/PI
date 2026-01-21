@@ -1,11 +1,20 @@
 <?php
+// 1. VERIFICACIÓN DE SESIÓN (DEBE SER LO PRIMERO)
+session_start();
+
+if (!isset($_SESSION['SISTEMA']['id_empleado'])) {
+    header("Location: login.php?error=no_autenticado");
+    exit();
+}
+
+// 2. CONEXIÓN A BD
 include("inc/conectar.php");
 
-// Filtros
+// 3. LÓGICA DE LA PÁGINA
 $filtro_estado = $_GET['estado'] ?? 'pendiente';
 $filtro_cliente = $_GET['cliente'] ?? '';
 
-// Actualizar estados vencidos en la base de datos
+// Actualizar estados vencidos
 $actualizar = $consulta->prepare("UPDATE cuentas_por_cobrar 
                                 SET estado = 'vencido' 
                                 WHERE fecha_vencimiento < CURDATE() 
@@ -93,12 +102,8 @@ $actualizar->execute();
         }
 
         .badge-vencido {
-            background-color: #dc3545;
+            background-color: rgb(220, 86, 53);
             color: #fff;
-        }
-
-        .vencido {
-            background-color: #fff3f3;
         }
 
         .bt_custom {
@@ -227,8 +232,8 @@ $actualizar->execute();
                 </div>
 
                 <!-- Lista de cuentas -->
-                <div class="card compact">
-                    <div class="card-header compact">
+                <div class="card">
+                    <div class="card-header">
                         <h5 class="mb-0">Listado de Cuentas</h5>
                     </div>
                     <div class="card-body compact">

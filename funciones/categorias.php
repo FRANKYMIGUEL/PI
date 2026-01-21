@@ -10,7 +10,7 @@ if ($_POST['funcion'] == "Tabla") {
             <button class='btn btn-danger  btn-sm eliminar' idregistros='" . $categorias['idcategorias'] . "' style='background-color:rgb(203, 38, 38); color: white; border: none;'>Eliminar</button>
             </td>
             <button class='btn editar btn-sm' idregistros='" . $producto['id_productos'] . "' >Editar</button> 
-            <button class='btn btn-danger  btn-sm eliminar' idregistros='" . $producto['id_productos'] . "'>Eliminar</button>
+            <button class='btn btn-danger btn-sm eliminar' idregistros='" . $producto['id_productos'] . "'>Eliminar</button>
 
         </tr>";
     }

@@ -1,4 +1,5 @@
 <?php
+session_start();
 // Habilitar todos los errores para depuración
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -180,8 +181,8 @@ try {
       </div>
 
       <div class="ticket-info">
-         <div>domicilio<br>Col. ssssss, Arandas, Jal.</div>
-         <div>tel xxxxxx</div>
+         <div>domicilio<br>Col.Las Margaritas, Las Margaritas, Jal.</div>
+         <div>tel 3315692631</div>
          <div class="ticket-title">Ticket No.: <?= htmlspecialchars($row["folio"] ?? '0000') ?></div>
       </div>
 
@@ -283,7 +284,7 @@ try {
 
       <div class="footer">
          <div class="amount-in-words">*<?= num2letras($total) ?>*</div>
-         <div>Atendido por: <?= htmlspecialchars($row["usuarios"] ?? 'SIN USUARIO') ?></div>
+         <div>Atendido por: <?= htmlspecialchars($_SESSION['SISTEMA']['nombre'] ) ?></div>
          <div class="text-center">¡Gracias por su compra!</div>
       </div>
    </div>
@@ -482,7 +483,7 @@ function num2letras($num, $fem = false, $dec = true)
    }
    $tex = $neg . substr($tex, 1) . $fin;
    //Zi hack --> return ucfirst($tex);
-   $end_num = ucfirst($tex) . ' pesos ' . substr($float[1], 0, 2) . '/100 M.N.';
+   $end_num = ucfirst($tex) . ' pesos ' . (isset($float[1]) ? substr($float[1], 0, 2) : '00') . '/100 M.N.';
    return $end_num;
 }
 ?>

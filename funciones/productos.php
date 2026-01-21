@@ -1,13 +1,18 @@
 <?php
 include('../inc/conectar.php');
 if ($_POST['funcion'] == "Tabla") {
-    $Auto = $consulta->query("SELECT productos.*, categorias.nombre AS categoria, unidades_medida.nombre AS unidad_medida FROM productos LEFT JOIN categorias ON categorias.idcategorias = productos.id_categoria LEFT JOIN unidades_medida ON unidades_medida.id_unidad_medida = productos.id_unidad_medida WHERE productos.fechabaja IS NULL");
+    $Auto = $consulta->query("SELECT productos.*, categorias.nombre AS categoria, unidades_medida.nombre AS unidad_medida 
+                             FROM productos 
+                             LEFT JOIN categorias ON categorias.idcategorias = productos.id_categoria 
+                             LEFT JOIN unidades_medida ON unidades_medida.id_unidad_medida = productos.id_unidad_medida 
+                             WHERE productos.fechabaja IS NULL");
     $tabla = "";
     foreach ($Auto as $producto) {
         $tabla .= "<tr>
             <td>" . $producto['nombre'] . "</td>
             <td>" . $producto['codigo_barras'] . "</td>
-            <td> $" . number_format($producto['precio'], 2) . "</td>
+            <td>$" . number_format($producto['precio'], 2) . "</td>
+            <td>$" . number_format($producto['precio_venta'], 2) . "</td>
             <td>" . $producto['existencias'] . "</td>
             <td>" . $producto['unidad_medida'] . "</td>
             <td>" . $producto['categoria'] . "</td>
@@ -20,26 +25,30 @@ if ($_POST['funcion'] == "Tabla") {
     echo $tabla;
     exit();
 }
+
 if ($_POST['funcion'] == 'Guardar') {
-    // Consulta para validar que el código de barras no exista
+    // Validar que el código de barras no exista
     $Auto = $consulta->query("SELECT * FROM productos WHERE codigo_barras='" . $_POST['codigo_barras'] . "'");
-    foreach ($Auto as $producto)
-        ;
+    foreach ($Auto as $producto);
+    
     if ($producto['id_productos'] > 0) {
         echo "El código de barras ya existe";
         exit();
     }
+
+    // Calcular precio de venta si no se proporciona (30% de margen)
+    $precio_venta = isset($_POST['precio_venta']) ? $_POST['precio_venta'] : ($_POST['precio'] * 1.30);
 
     // Insertar nuevo producto
     $query = "INSERT INTO productos SET 
         codigo_barras='" . strtoupper($_POST['codigo_barras']) . "', 
         nombre='" . strtoupper($_POST['nombre']) . "', 
         precio=" . $_POST['precio'] . ", 
+        precio_venta=" . $precio_venta . ", 
         existencias=" . $_POST['existencias'] . ", 
         id_unidad_medida=" . $_POST['unidad_medida'] . ", 
         id_categoria=" . $_POST['categoria'];
 
-    // Ejecutar la consulta
     if ($consulta->query($query)) {
         echo "Producto insertado correctamente";
     }
@@ -47,38 +56,33 @@ if ($_POST['funcion'] == 'Guardar') {
 }
 
 if ($_POST['funcion'] == 'Editar') {
-    // Actualizar producto existente
+    // Calcular precio de venta si no se proporciona (30% de margen)
+    $precio_venta = isset($_POST['precio_venta']) ? $_POST['precio_venta'] : ($_POST['precio'] * 1.30);
 
     $Auto = $consulta->query("UPDATE productos SET 
-    codigo_barras='" . strtoupper($_POST['codigo_barras']) . "', 
-    nombre='" . strtoupper($_POST['nombre']) . "', 
-    precio=" . $_POST['precio'] . ", 
-    existencias=" . $_POST['existencias'] . ", 
-    id_unidad_medida=" . $_POST['unidad_medida'] . ", 
-    id_categoria=" . $_POST['categoria'] . " 
-    WHERE id_productos=" . $_POST['idregistros']);
+        codigo_barras='" . strtoupper($_POST['codigo_barras']) . "', 
+        nombre='" . strtoupper($_POST['nombre']) . "', 
+        precio=" . $_POST['precio'] . ", 
+        precio_venta=" . $precio_venta . ", 
+        existencias=" . $_POST['existencias'] . ", 
+        id_unidad_medida=" . $_POST['unidad_medida'] . ", 
+        id_categoria=" . $_POST['categoria'] . " 
+        WHERE id_productos=" . $_POST['idregistros']);
 
-    foreach ($Auto as $producto)
-        ;
-
+    foreach ($Auto as $producto);
 }
 
 if ($_POST['funcion'] == 'Eliminar') {
-    // Eliminar producto (marcar como inactivo)
     $Auto = $consulta->query("UPDATE productos SET fechabaja='" . date("Y-m-d H:i:s") . "' WHERE id_productos=" . $_POST['idregistros']);
-    foreach ($Auto as $producto)
-        ;
+    foreach ($Auto as $producto);
 }
 
 if ($_POST['funcion'] == "Modal") {
     if ($_POST['tipo'] == "Editar") {
-        // Obtener datos del producto para editar
         $Auto = $consulta->query("SELECT * FROM productos WHERE id_productos=" . $_POST['id']);
-        foreach ($Auto as $row)
-            ;
+        foreach ($Auto as $row);
     }
 
-    // Generar el formulario modal
     $modal = "
         <div class='row'>
             <div class='col-3'>
@@ -95,8 +99,14 @@ if ($_POST['funcion'] == "Modal") {
             </div>
             <div class='col-4'>
                 <div class='form-group'>
-                    <b for='precio'>Precio</b>
+                    <b for='precio'>Precio Unitario</b>
                     <input type='text' class='form-control' id='precio' value='" . $row['precio'] . "'  name='precio'>
+                </div>
+            </div>
+            <div class='col-4'>
+                <div class='form-group'>
+                    <b for='precio_venta'>Precio de Venta</b>
+                    <input type='text' class='form-control' id='precio_venta' value='" . $row['precio_venta'] . "'  name='precio_venta'>
                 </div>
             </div>
             <div class='col-4'>

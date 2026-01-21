@@ -1,55 +1,13 @@
 <head>
-<?php
-// 1. VERIFICACIÓN DE SESIÓN (DEBE IR PRIMERO, SIN ESPACIOS ANTES)
-session_start();
-
-// Verificar sesión activa
-if (!isset($_SESSION['SISTEMA']['id_empleado'])) {
-    header("Location: login.php?error=no_autenticado");
-    exit();
-}
-
-// 2. CONEXIÓN A LA BASE DE DATOS
-include("inc/conectar.php");
-
-// 3. OBTENER DATOS DE LA URL
-$id_cuenta = $_GET['id'] ?? 0;
-
-// 4. CONSULTAS A LA BASE DE DATOS
-// Obtener información de la cuenta
-$stmt = $consulta->prepare("SELECT cc.*, 
-       CONCAT(c.nombre, ' ', c.apellido_p, ' ', c.apellido_m) AS cliente_nombre, 
-       v.folio AS venta_folio
-FROM cuentas_por_cobrar cc
-JOIN clientes c ON cc.id_cliente = c.id_cliente
-JOIN ventas v ON cc.id_venta = v.id_venta
-WHERE cc.id_cuenta_cobrar = ?");
-$stmt->execute([$id_cuenta]);
-$cuenta = $stmt->fetch(PDO::FETCH_ASSOC);
-
-// Obtener historial de pagos
-$stmt = $consulta->prepare("SELECT * FROM pagos_cuentas 
-                           WHERE id_cuenta_cobrar = ? 
-                           ORDER BY fecha_pago DESC");
-$stmt->execute([$id_cuenta]);
-$pagos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-?>
-<!DOCTYPE html>
-<html lang="es">
-<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Historial de pagos</title>
+    <title>Historial de Compras</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/bootstrap.min.css">
 
-    <style>
-        /* [Mantener todos tus estilos CSS aquí] */
-    </style>
-</head>
     <style>
         .table {
             width: 100%;
@@ -102,13 +60,6 @@ $pagos = $stmt->fetchAll(PDO::FETCH_ASSOC);
             background-color: rgba(154, 203, 208, 0.3);
         }
 
-        .form-control-sm {
-            border-radius: 5px;
-            border: 1px solid #9ACBD0;
-            padding: 8px 12px;
-            background-color: #F2EFE7;
-        }
-
         body {
             background-color: #f0f8ff;
             background: linear-gradient(135deg, #F2EFE7 0%, #F2EFE7 50%, #F2EFE7 100%);
@@ -120,78 +71,76 @@ $pagos = $stmt->fetchAll(PDO::FETCH_ASSOC);
             padding: 5px;
         }
 
-        #tablaPedidos {
-            width: 100% !important;
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(41, 115, 178, 0.1);
+            background-color: #F2EFE7;
         }
 
-        /* Estilo para la columna de total acumulado */
-        /* Añade esto en tu sección de estilos CSS */
-        .total {
-            background-color: rgb(178, 41, 41);
+        .card-header {
+            background-color: #2973B2;
             color: white;
-            font-weight: bold;
+            border-radius: 10px 10px 0 0 !important;
         }
 
-        .total th,
-        .total td {
-            padding: 10px 15px;
-        }
-
-        /* Estilo para el contenedor del buscador */
-        .dataTables_filter {
-            margin-bottom: 20px;
-            /* Separa el buscador de la tabla */
-            display: flex;
-            align-items: center;
-        }
-
-        .dataTables_filter label {
-            display: flex;
-            /* Mantener el label flexible */
-            align-items: center;
-            /* Alinear verticalmente el texto y el input */
-            margin-bottom: 0;
-            /* Eliminar margen inferior predeterminado */
-            gap: 10px;
-            /* Espacio entre "Buscar:" y el input */
-            margin-bottom: 0;
-            /* Elimina el margen inferior predeterminado */
-            font-weight: bold;
-        }
-
-        .dataTables_filter input {
-            width: 400px !important;
-            /* Ajusta el ancho según necesidad */
-            height: 40px !important;
-            font-size: 16px !important;
-            margin-left: 10px;
-            /* Espacio entre el texto y el input */
-            /* Espacio entre "Buscar:" y el input */
+        .dataTables_wrapper .dataTables_filter input {
+            background-color: #F2EFE7;
+            border: 1px solid #9ACBD0;
             padding: 8px 12px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            border-radius: 5px;
+        }
+
+        .dataTables_wrapper .dataTables_filter label {
+            font-weight: bold;
         }
     </style>
 </head>
 
 
+<?php
+session_start();
+require_once 'check_session.php';
+include("inc/conectar.php");
+
+$id_cuenta = $_GET['id'] ?? 0;
+
+// Obtener información de la cuenta por pagar
+$stmt = $consulta->prepare("SELECT cp.*, 
+       p.nombre AS proveedor_nombre, 
+       c.folio AS compra_folio,
+       c.total AS monto_total
+FROM cuentas_por_pagar cp
+JOIN proveedores p ON cp.id_proveedor = p.id_proveedor
+JOIN compras c ON cp.id_compra = c.id_compra
+WHERE cp.id_cuenta_pagar = ?");
+$stmt->execute([$id_cuenta]);
+$cuenta = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// Obtener historial de pagos
+$stmt = $consulta->prepare("SELECT * FROM pagos_proveedores 
+                           WHERE id_cuenta_pagar = ? 
+                           ORDER BY fecha_pago DESC");
+$stmt->execute([$id_cuenta]);
+$pagos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+?>
+
 <body>
     <div class="banner">
         <div class="container">
-            <h1 class="text-center">Historial de Pagos</h1>
+            <h1 class="text-center">Historial de Pagos a Proveedores</h1>
         </div>
     </div>
     <div class="container mt-4">
-        <div class="">
+        <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h4>Historial de Pagos</h4>
-                <a href="cuentas_cobrar.php" class="btn btn-secondary">Volver</a>
+                <h4>Detalle de Pagos</h4>
+                <a href="cuentas_pagar.php" class="btn btn-secondary">Volver</a>
             </div>
             <div class="card-body">
                 <div class="row mb-4">
                     <div class="col-md-6">
-                        <p><strong>Cliente:</strong> <?= htmlspecialchars($cuenta['cliente_nombre']) ?></p>
-                        <p><strong>Venta:</strong> <?= $cuenta['venta_folio'] ?></p>
+                        <p><strong>Proveedor:</strong> <?= htmlspecialchars($cuenta['proveedor_nombre']) ?></p>
+                        <p><strong>Compra:</strong> <?= $cuenta['compra_folio'] ?></p>
                     </div>
                     <div class="col-md-6">
                         <p><strong>Monto Total:</strong> $<?= number_format($cuenta['monto_total'], 2) ?></p>
@@ -201,23 +150,30 @@ $pagos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                 <h5>Pagos Registrados</h5>
                 <div class="table-responsive">
-                    <table class="table table-striped">
+                    <table id="tablaPagos" class="table table-striped">
                         <thead>
                             <tr>
                                 <th>Fecha</th>
                                 <th>Monto</th>
                                 <th>Método</th>
                                 <th>Referencia</th>
+                                <th>Usuario</th>
                                 <th>Observaciones</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($pagos as $pago): ?>
+                            <?php foreach ($pagos as $pago):
+                                // Obtener nombre de usuario que registró el pago
+                                $stmt = $consulta->prepare("SELECT nombre FROM usuarios WHERE id_usuario = ?");
+                                $stmt->execute([$pago['id_usuario']]);
+                                $usuario = $stmt->fetchColumn();
+                                ?>
                                 <tr>
                                     <td><?= date('d/m/Y H:i', strtotime($pago['fecha_pago'])) ?></td>
                                     <td>$<?= number_format($pago['monto_pago'], 2) ?></td>
                                     <td><?= ucfirst($pago['metodo_pago']) ?></td>
                                     <td><?= htmlspecialchars($pago['referencia'] ?? 'N/A') ?></td>
+                                    <td><?= htmlspecialchars($usuario) ?></td>
                                     <td><?= htmlspecialchars($pago['observaciones'] ?? '') ?></td>
                                 </tr>
                             <?php endforeach; ?>
@@ -227,6 +183,21 @@ $pagos = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
         </div>
     </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#tablaPagos').DataTable({
+                language: {
+                    url: 'https://cdn.datatables.net/plug-ins/1.11.5/i18n/es-MX.json'
+                },
+                order: [[0, 'desc']] // Ordenar por fecha descendente por defecto
+            });
+        });
+    </script>
 </body>
 
 </html>

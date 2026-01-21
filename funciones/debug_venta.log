@@ -4473,3 +4473,1340 @@ Array
     [tipo_pago] => contado
     [dias_credito] => 0
 )
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 360
+    [nombre_cliente] => Óscar Vega López
+    [total] => 111.77
+    [efectivo] => 200
+    [cambio] => 88.23
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678907
+                    [id_productos] => 23
+                    [precio] => 73.85
+                )
+
+            [1] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 123456789013
+                    [id_productos] => 29
+                    [precio] => 37.92
+                )
+
+        )
+
+    [tipo_pago] => credito
+    [dias_credito] => 12
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 67.89
+    [efectivo] => 100
+    [cambio] => 32.11
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678908
+                    [id_productos] => 24
+                    [precio] => 67.89
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 67.89
+    [efectivo] => 100
+    [cambio] => 32.11
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678908
+                    [id_productos] => 24
+                    [precio] => 67.89
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 73.85
+    [efectivo] => 100
+    [cambio] => 26.15
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678907
+                    [id_productos] => 23
+                    [precio] => 73.85
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 76.87
+    [efectivo] => 100
+    [cambio] => 23.13
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678906
+                    [id_productos] => 22
+                    [precio] => 19.3
+                )
+
+            [1] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 123456789015
+                    [id_productos] => 31
+                    [precio] => 57.57
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 111.77
+    [efectivo] => 200
+    [cambio] => 88.23
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678907
+                    [id_productos] => 23
+                    [precio] => 73.85
+                )
+
+            [1] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 123456789013
+                    [id_productos] => 29
+                    [precio] => 37.92
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 87.19
+    [efectivo] => 100
+    [cambio] => 12.81
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678908
+                    [id_productos] => 24
+                    [precio] => 67.89
+                )
+
+            [1] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678906
+                    [id_productos] => 22
+                    [precio] => 19.3
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 67.89
+    [efectivo] => 100
+    [cambio] => 32.11
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678908
+                    [id_productos] => 24
+                    [precio] => 67.89
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 19.3
+    [efectivo] => 100
+    [cambio] => 80.7
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678906
+                    [id_productos] => 22
+                    [precio] => 19.3
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 45.26
+    [efectivo] => 100
+    [cambio] => 54.74
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678903
+                    [id_productos] => 19
+                    [precio] => 45.26
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 67.89
+    [efectivo] => 100
+    [cambio] => 32.11
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678908
+                    [id_productos] => 24
+                    [precio] => 67.89
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 73.85
+    [efectivo] => 100
+    [cambio] => 26.15
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678907
+                    [id_productos] => 23
+                    [precio] => 73.85
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 58.61
+    [efectivo] => 100
+    [cambio] => 41.39
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678905
+                    [id_productos] => 21
+                    [precio] => 58.61
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 67.89
+    [efectivo] => 100
+    [cambio] => 32.11
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678908
+                    [id_productos] => 24
+                    [precio] => 67.89
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 58.61
+    [efectivo] => 100
+    [cambio] => 41.39
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678905
+                    [id_productos] => 21
+                    [precio] => 58.61
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 73.85
+    [efectivo] => 100
+    [cambio] => 26.15
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678907
+                    [id_productos] => 23
+                    [precio] => 73.85
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 19.3
+    [efectivo] => 100
+    [cambio] => 80.7
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678906
+                    [id_productos] => 22
+                    [precio] => 19.3
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 58.61
+    [efectivo] => 100
+    [cambio] => 41.39
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678905
+                    [id_productos] => 21
+                    [precio] => 58.61
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 58.61
+    [efectivo] => 200
+    [cambio] => 141.39
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678905
+                    [id_productos] => 21
+                    [precio] => 58.61
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 3
+    [nombre_cliente] => Cliente3 ApellidoP3 ApellidoM3
+    [total] => 67.89
+    [efectivo] => 100
+    [cambio] => 32.11
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678908
+                    [id_productos] => 24
+                    [precio] => 67.89
+                )
+
+        )
+
+    [tipo_pago] => credito
+    [dias_credito] => 30
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 73.85
+    [efectivo] => 100
+    [cambio] => 26.15
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678907
+                    [id_productos] => 23
+                    [precio] => 73.85
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 73.85
+    [efectivo] => 100
+    [cambio] => 26.15
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678907
+                    [id_productos] => 23
+                    [precio] => 73.85
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 67.89
+    [efectivo] => 100
+    [cambio] => 32.11
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678908
+                    [id_productos] => 24
+                    [precio] => 67.89
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 19.3
+    [efectivo] => 100
+    [cambio] => 80.7
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678906
+                    [id_productos] => 22
+                    [precio] => 19.3
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 73.85
+    [efectivo] => 100
+    [cambio] => 26.15
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678907
+                    [id_productos] => 23
+                    [precio] => 73.85
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 73.85
+    [efectivo] => 100
+    [cambio] => 26.15
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678907
+                    [id_productos] => 23
+                    [precio] => 73.85
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 45.26
+    [efectivo] => 100
+    [cambio] => 54.74
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678903
+                    [id_productos] => 19
+                    [precio] => 45.26
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 19.3
+    [efectivo] => 100
+    [cambio] => 80.7
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678906
+                    [id_productos] => 22
+                    [precio] => 19.3
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 19.3
+    [efectivo] => 100
+    [cambio] => 80.7
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678906
+                    [id_productos] => 22
+                    [precio] => 19.3
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 4
+    [nombre_cliente] => Cliente4 ApellidoP4 ApellidoM4
+    [total] => 19.3
+    [efectivo] => 100
+    [cambio] => 80.7
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678906
+                    [id_productos] => 22
+                    [precio] => 19.3
+                )
+
+        )
+
+    [tipo_pago] => credito
+    [dias_credito] => 10
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 347
+    [nombre_cliente] => Eva Castillo Sánchez
+    [total] => 242.48
+    [efectivo] => 300
+    [cambio] => 57.52
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 33
+                    [codigo_barras] => 12345678909
+                    [id_productos] => 25
+                    [precio] => 4.81
+                )
+
+            [1] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678904
+                    [id_productos] => 20
+                    [precio] => 83.75
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 58.61
+    [efectivo] => 100
+    [cambio] => 41.39
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678905
+                    [id_productos] => 21
+                    [precio] => 58.61
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 67.89
+    [efectivo] => 100
+    [cambio] => 32.11
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678908
+                    [id_productos] => 24
+                    [precio] => 67.89
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 6
+    [nombre_cliente] => Cliente6 ApellidoP6 ApellidoM6
+    [total] => 19.3
+    [efectivo] => 0
+    [cambio] => 0
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678906
+                    [id_productos] => 22
+                    [precio] => 19.3
+                )
+
+        )
+
+    [tipo_pago] => credito
+    [dias_credito] => 7
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 5929.06
+    [efectivo] => 10000
+    [cambio] => 4070.94
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 131
+                    [codigo_barras] => 12345678903
+                    [id_productos] => 19
+                    [precio] => 45.26
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 133.65
+    [efectivo] => 200
+    [cambio] => 66.35
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678904
+                    [id_productos] => 20
+                    [precio] => 83.75
+                )
+
+            [1] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 123456789010
+                    [id_productos] => 26
+                    [precio] => 49.9
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 83.75
+    [efectivo] => 100
+    [cambio] => 16.25
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678904
+                    [id_productos] => 20
+                    [precio] => 83.75
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 19.3
+    [efectivo] => 100
+    [cambio] => 80.7
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678906
+                    [id_productos] => 22
+                    [precio] => 19.3
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 120
+    [efectivo] => 200
+    [cambio] => 80
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 2
+                    [codigo_barras] => WERERTR
+                    [id_productos] => 329
+                    [precio] => 60
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 19.3
+    [efectivo] => 100
+    [cambio] => 80.7
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678906
+                    [id_productos] => 22
+                    [precio] => 19.3
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 120
+    [efectivo] => 200
+    [cambio] => 80
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 2
+                    [codigo_barras] => WERERTR
+                    [id_productos] => 329
+                    [precio] => 60
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 133.85
+    [efectivo] => 200
+    [cambio] => 66.15
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => WERERTR
+                    [id_productos] => 329
+                    [precio] => 60
+                )
+
+            [1] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678907
+                    [id_productos] => 23
+                    [precio] => 73.85
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 133.85
+    [efectivo] => 200
+    [cambio] => 66.15
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => WERERTR
+                    [id_productos] => 329
+                    [precio] => 60
+                )
+
+            [1] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678907
+                    [id_productos] => 23
+                    [precio] => 73.85
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 60
+    [efectivo] => 200
+    [cambio] => 140
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => WERERTR
+                    [id_productos] => 329
+                    [precio] => 60
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 300
+    [efectivo] => 300
+    [cambio] => 0
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 5
+                    [codigo_barras] => WERERTR
+                    [id_productos] => 329
+                    [precio] => 60
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 540
+    [efectivo] => 1000
+    [cambio] => 460
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 9
+                    [codigo_barras] => WERERTR
+                    [id_productos] => 329
+                    [precio] => 60
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 420
+    [efectivo] => 500
+    [cambio] => 80
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 7
+                    [codigo_barras] => WERERTR
+                    [id_productos] => 329
+                    [precio] => 60
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 720
+    [efectivo] => 800
+    [cambio] => 80
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 12
+                    [codigo_barras] => WERERTR
+                    [id_productos] => 329
+                    [precio] => 60
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 300
+    [efectivo] => 500
+    [cambio] => 200
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 5
+                    [codigo_barras] => WERERTR
+                    [id_productos] => 329
+                    [precio] => 60
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 443.75
+    [efectivo] => 500
+    [cambio] => 56.25
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => 12345678904
+                    [id_productos] => 20
+                    [precio] => 83.75
+                )
+
+            [1] => Array
+                (
+                    [cantidad] => 6
+                    [codigo_barras] => WERERTR
+                    [id_productos] => 329
+                    [precio] => 60
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 60
+    [efectivo] => 100
+    [cambio] => 40
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => WERERTR
+                    [id_productos] => 329
+                    [precio] => 60
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 240
+    [efectivo] => 300
+    [cambio] => 60
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 4
+                    [codigo_barras] => WERERTR
+                    [id_productos] => 329
+                    [precio] => 60
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 240
+    [efectivo] => 300
+    [cambio] => 60
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 4
+                    [codigo_barras] => WERERTR
+                    [id_productos] => 329
+                    [precio] => 60
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 240
+    [efectivo] => 300
+    [cambio] => 60
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 4
+                    [codigo_barras] => WERERTR
+                    [id_productos] => 329
+                    [precio] => 60
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)
+Array
+(
+    [funcion] => Guardar_Venta
+    [idclientes] => 1
+    [nombre_cliente] => Mostrador
+    [total] => 60
+    [efectivo] => 100
+    [cambio] => 40
+    [Detalle] => Array
+        (
+            [0] => Array
+                (
+                    [cantidad] => 1
+                    [codigo_barras] => WERERTR
+                    [id_productos] => 329
+                    [precio] => 60
+                )
+
+        )
+
+    [tipo_pago] => contado
+    [dias_credito] => 0
+)

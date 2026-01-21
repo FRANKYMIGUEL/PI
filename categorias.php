@@ -106,7 +106,7 @@
       </div>
       <div class="col-10">
       </div>
-      <div class="col-2 text-center mt-5">
+      <div class="col-2 text-center mt-3">
         <button class="btn-custom w-50" id="nuevo" data-bs-toggle="modal" data-bs-target="#modal"> Nuevo <svg
             xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle"
             viewBox="0 0 16 16">

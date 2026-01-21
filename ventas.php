@@ -1,18 +1,17 @@
-<?
-include("inc/conectar.php");
-function FolioVenta()
-{
-    include "inc/conectar.php";
-    $Auto = $consulta->query("SELECT MAX(id_venta)+1 AS autoincrement  FROM ventas");
-    foreach ($Auto as $row)
-        ;
+<?php
+session_start();
 
-    if ($row['autoincrement'] == "") {
-        $folio = 1;
-    } else {
-        $folio = $row['autoincrement'];
-    }
-    return $folio;
+require_once 'check_session.php';
+
+
+// 3. Conexión a BD y funciones
+include("inc/conectar.php");
+
+function FolioVenta() {
+    global $consulta;
+    $Auto = $consulta->query("SELECT MAX(id_venta)+1 AS autoincrement FROM ventas");
+    $row = $Auto->fetch(PDO::FETCH_ASSOC);
+    return $row['autoincrement'] ? str_pad($row['autoincrement'], 4, "0", STR_PAD_LEFT) : "0001";
 }
 ?>
 <!DOCTYPE html>
@@ -21,7 +20,7 @@ function FolioVenta()
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ventas <?= $_SESSION['SISTEMA']['nombre'] ?></title>
+    <title>Ventas </title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
@@ -316,6 +315,41 @@ function FolioVenta()
             background-color: rgba(41, 115, 178, 0.03);
             border-top: 1px solid rgba(0, 0, 0, 0.05);
         }
+
+        /* Estilos adicionales para los botones de cantidad/monto */
+        .btn-group-toggle .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+            border-color: #2973B2;
+            color: #2973B2;
+        }
+
+        .btn-group-toggle .btn-outline-primary.active {
+            background-color: #2973B2;
+            color: white;
+        }
+
+        .btn-group-toggle .btn-outline-primary:hover:not(.active) {
+            background-color: rgba(41, 115, 178, 0.1);
+            color: #2973B2;
+        }
+
+        .btn-group-toggle .btn:focus {
+            box-shadow: 0 0 0 0.2rem rgba(41, 115, 178, 0.25);
+        }
+
+        /* Estilo para los inputs de cantidad/monto */
+        #cantidad,
+        #monto_fijo {
+            transition: all 0.3s ease;
+        }
+
+        #cantidad:focus,
+        #monto_fijo:focus {
+            border-color: #2973B2;
+            box-shadow: 0 0 0 0.2rem rgba(41, 115, 178, 0.25);
+            outline: none;
+        }
     </style>
 </head>
 
@@ -323,22 +357,41 @@ function FolioVenta()
     <?
     include "menu.php";
     ?>
-    <div class="col-12 text-center banner">
-        <h1 class="">
-            Ventas
-        </h1>
+    <?php
+    if (isset($_GET['error']) && $_GET['error'] == 'corte_pendiente') {
+        echo '<script>
+    Swal.fire({
+        title: "Corte pendiente",
+        text: "Debes realizar el corte de caja antes de cerrar sesión",
+        icon: "warning",
+        confirmButtonText: "Entendido"
+    }).then(() => {
+        $("#modalCorteCaja").modal("show");
+        // Eliminar el parámetro de error de la URL
+        if (window.history.replaceState) {
+            window.history.replaceState(null, null, window.location.pathname);
+        }
+    });
+    </script>';
+    }
+    ?>
+    <div class="col-12 banner position-relative d-flex justify-content-center align-items-center">
+        <h1 class="m-0 text-center">Ventas</h1>
+        <h6 class="m-0 position-absolute end-0 pe-3 text-white fw-bold">
+            Usuario: <?= $_SESSION['SISTEMA']['nombre'] ?>
+        </h6>
     </div>
     <div class="container-fluid">
-
         <div class="row">
             <div class="col-10 text-center">
-                <div class="row">
-                    <div class="col-4">Clientes
+                <div class="row align-items-end g-2"> <!-- Añadido g-2 para espacio entre filas -->
+                    <!-- Columna Clientes -->
+                    <div class="col-md-3">
+                        <label for="clientes" class="form-label mb-1">Clientes</label>
                         <input list="datosClientes" name="" autocomplete="off" value="<?= $CLIENTES ?>"
                             class="form-control form-control-sm" id="clientes" placeholder="Buscar clientes">
                         <datalist id="datosClientes" active>
-                            <?
-
+                            <?php
                             $Auto = $consulta->query("SELECT * FROM clientes");
                             foreach ($Auto as $producto) {
                                 echo "<option value ='$producto[id_cliente]-$producto[nombre]-$producto[apellido_p]-$producto[apellido_m]'>";
@@ -346,25 +399,49 @@ function FolioVenta()
                             ?>
                         </datalist>
                     </div>
-                    <div class="col-2">Cantidad
-                        <input type="number" class="form-control form-control-sm" id="cantidad" value="1">
-                    </div>
-                    <div class="col-5">Productos
-                        <div class="input-group"> <!-- Agrega un contenedor input-group -->
-                            <input list="datosProductos" name="" autocomplete="off" value="<?= $CLIENTES ?>"
-                                class="form-control form-control-sm" id="productos" placeholder="Buscar Productos">
-                            <button class="btn btn-success" id="agregar_producto">Agregar Producto</button>
+
+                    <!-- Columna Tipo de Entrada -->
+                    <div class="col-md-3">
+                        <label class="form-label mb-1 d-block"></label>
+                        <div class="btn-group btn-group-toggle w-100" data-toggle="buttons">
+                            <label class="btn btn-outline-primary active">
+                                <input type="radio" name="tipo_cantidad" id="por_cantidad" autocomplete="off" checked>
+                                Por Cantidad
+                            </label>
+                            <label class="btn btn-outline-primary">
+                                <input type="radio" name="tipo_cantidad" id="por_monto" autocomplete="off">
+                                Por Monto
+                            </label>
                         </div>
-                        <datalist id="datosProductos" active>
-                            <?php
-                            $Auto = $consulta->query("SELECT * FROM productos WHERE productos.fechabaja IS NULL");
-                            foreach ($Auto as $producto) {
-                                echo "<option value ='$producto[codigo_barras]-$producto[nombre]'>";
-                            }
-                            ?>
-                        </datalist>
+                        <input type="number" class="form-control form-control-sm mt-1" id="cantidad" value="1"
+                            step="0.01">
+                        <input type="number" class="form-control form-control-sm mt-1" id="monto_fijo"
+                            placeholder="Monto fijo" style="display: none;" step="0.01">
                     </div>
 
+                    <!-- Columna Productos -->
+                    <div class="col-md-5">
+                        <div class="d-flex align-items-end" style="height: 100%;">
+                            <div style="flex-grow: 1;">
+                                <label for="productos" class="form-label mb-1">Productos</label>
+                                <div class="input-group">
+                                    <input list="datosProductos" name="" autocomplete="off" value="<?= $CLIENTES ?>"
+                                        class="form-control form-control-sm" id="productos"
+                                        placeholder="Buscar Productos">
+                                    
+                                </div>
+                                <datalist id="datosProductos" active>
+                                    <?php
+                                    $Auto = $consulta->query("SELECT * FROM productos WHERE productos.fechabaja IS NULL AND existencias > 0");
+                                    foreach ($Auto as $producto) {
+                                        echo "<option value ='$producto[codigo_barras]-$producto[nombre]'>";
+                                    }
+                                    ?>
+                                </datalist>
+                            </div><button class="btn btn-success" id="agregar_producto"
+                                        style="white-space: nowrap;">Agregar Producto</button>
+                        </div>
+                    </div>
                 </div>
                 <div class="row">
                     <div class="col-12">
@@ -380,11 +457,9 @@ function FolioVenta()
                                 </tr>
                             </thead>
                             <tbody id="tabla_detalle">
-                                <!-- Los productos se agregarán dinámicamente aquí -->
                             </tbody>
                         </table>
                     </div>
-
                 </div>
             </div>
             <div class="col-2">
@@ -431,27 +506,29 @@ function FolioVenta()
                                         </button>
                                     </div>
                                 </div>
-                                <!-- Sección de Resumen del Día -->
-                                <div class="card mt-2 card-border-primary">
-                                    <div class="card-header bg-primary text-white">
-                                        <h5 class="mb-0">
-                                            <i class="bi bi-graph-up"></i> Resumen del Día
-                                        </h5>
-                                    </div>
-                                    <div class="card-body text-center">
-                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <span class="text-muted">Fecha:</span>
-                                            <span class="fw-bold" id="fecha-actual"><?= date('d/m/Y') ?></span>
-                                        </div>
-                                        <div class="display-4 fw-bold text-primary mb-2" id="total-ventas-dia">$0.00
-                                        </div>
-                                        <div class="progress">
-                                            <div id="progress-ventas" class="progress-bar" role="progressbar"
-                                                style="width: 0%"></div>
-                                        </div>
-                                        <small class="text-muted">Total acumulado</small>
+
+                            </div>
+                        </div><!-- Sección de Resumen del Día -->
+                        <div class="card mt-2 card-border-primary">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-graph-up"></i> Resumen del Día
+                                </h5>
+                            </div>
+                            <div class="card-body text-center">
+                                <div class="d-flex justify-content-between align-items-center mb-2 fs-6"> <!-- fs-6 -->
+                                    <span class="text-muted">Fecha:</span>
+                                    <span class="fw-bold" id="fecha-actual"><?= date('d/m/Y') ?></span>
+                                </div>
+                                <div class="fs-3 fw-bold text-primary mb-2" id="total-ventas-dia">$0.00
+                                    <!-- Cambié a fs-3 -->
+                                </div>
+                                <div class="progress">
+                                    <div id="progress-ventas" class="progress-bar" role="progressbar" style="width: 0%">
                                     </div>
                                 </div>
+                                <small class="text-muted fs-7">Total acumulado</small>
+                                <!-- fs-7 si tu versión lo soporta -->
                             </div>
                         </div>
                     </div>
@@ -487,439 +564,629 @@ function FolioVenta()
             </div>
         </div>
         <script>
+$(document).ready(function () {
+    // Función para actualizar el progress bar
+    function actualizarProgressBar() {
+        const metaDiaria = 1000;
+        const totalVentas = parseFloat(
+            $('#total-ventas-dia').text()
+                .replace('$', '')
+                .replace(/,/g, '')
+        ) || 0;
 
-            $(document).ready(function () {
-                // Función para actualizar el progress bar
-                function actualizarProgressBar() {
-                    const metaDiaria = 5000; // Meta real de $2,000
-                    const totalVentas = parseFloat(
-                        $('#total-ventas-dia').text()
-                            .replace('$', '')
-                            .replace(/,/g, '')
-                    ) || 0;
+        const porcentaje = (totalVentas / metaDiaria) * 100;
+        $('#progress-ventas').css('width', `${Math.min(porcentaje, 100)}%`);
 
-                    const porcentaje = (totalVentas / metaDiaria) * 100;
-                    $('#progress-ventas').css('width', `${Math.min(porcentaje, 100)}%`);
+        if (porcentaje >= 100) {
+            $('#progress-ventas').removeClass('bg-success bg-warning').addClass('bg-success');
+            Swal.fire({
+                icon: 'success',
+                title: '¡Felicidades!',
+                text: '¡Meta diaria alcanzada!',
+                confirmButtonColor: '#2973B2',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000
+            });
+        } else if (porcentaje >= 50) {
+            $('#progress-ventas').removeClass('bg-success bg-danger').addClass('bg-warning');
+        } else {
+            $('#progress-ventas').removeClass('bg-warning bg-danger').addClass('bg-danger');
+        }
+    }
 
-                    // Lógica de colores mejorada
-                    if (porcentaje >= 100) {
-                        $('#progress-ventas').removeClass('bg-success bg-warning').addClass('bg-success');
-                        // Alerta de meta alcanzada
+    // Alternar entre cantidad y monto
+    $(document).on("change", "input[name='tipo_cantidad']", function () {
+        if ($("#por_monto").is(":checked")) {
+            $("#cantidad").hide();
+            $("#monto_fijo").show().val("").focus();
+        } else {
+            $("#monto_fijo").hide().val("");
+            $("#cantidad").show().val("1").focus();
+        }
+    });
+
+    // Calcular cantidad automáticamente cuando se ingresa monto
+    $(document).on("input", "#monto_fijo", function () {
+        var monto = parseFloat($(this).val()) || 0;
+        var producto = $("#productos").val();
+
+        if (producto && monto > 0) {
+            var codigo_barras = producto.split("-")[0];
+
+            $.ajax({
+                url: 'funciones/ventas.php',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    funcion: 'VerificarExistencias',
+                    codigo_barras: codigo_barras
+                },
+                success: function (response) {
+                    if (response.error) {
                         Swal.fire({
-                            icon: 'success',
-                            title: '¡Felicidades!',
-                            text: '¡Meta diaria alcanzada!',
-                            confirmButtonColor: '#2973B2',
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 3000
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.message,
+                            confirmButtonColor: '#2973B2'
                         });
-                    } else if (porcentaje >= 50) {
-                        $('#progress-ventas').removeClass('bg-success bg-danger').addClass('bg-warning');
+                        return;
+                    }
+
+                    var precio = parseFloat(response.precio_venta);
+                    if (precio > 0) {
+                        var cantidad = monto / precio;
+                        $("#cantidad").val(cantidad.toFixed(2));
                     } else {
-                        $('#progress-ventas').removeClass('bg-warning bg-danger').addClass('bg-danger');
-                    }
-                }
-
-                // Ejemplo de llamada después de una venta:
-                document.getElementById('Guardar_Venta').addEventListener('click', function () {
-                    // Lógica para guardar la venta...
-                    actualizarProgressBar(); // Actualiza la barra
-                });
-                actualizarTotalVentasDia();
-                var bandera = true;
-                $(window).on('beforeunload', function (e) {
-                    if (bandera) {
-                        e.preventDefault();
-                        e.returnValue = '¿Estás seguro de que quieres abandonar esta página? Los cambios no guardados se perderán.';
-                        return '¿Estás seguro de que quieres abandonar esta página? Los cambios no guardados se perderán.';
-                    }
-                });
-
-                //validar el cambio del efectivo
-                $(document).on("change", "#efectivo", function () {
-                    var total = Quita_Moneda($("#total").text());
-                    var efectivo = Quita_Moneda($(this).val());
-                    if (efectivo < total) {
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Advertencia',
-                            text: 'El efectivo no puede ser menor al total',
-                            confirmButtonColor: '#2973B2'
-                        });
-                        $(this).val(total);
-                        $("#cambio").text("$" + Formato_Moneda(0, 2));
-                    } else {
-                        $("#cambio").text("$" + Formato_Moneda(efectivo - total, 2));
-                    }
-                });
-
-                function actualizarTotalVentasDia() {
-                    $.post('funciones/ventas.php', {
-                        funcion: 'ObtenerVentasDelDia'
-                    }, function (response) {
-                        if (response.success) {
-                            $('#total-ventas-dia').text('$' + response.total_dia);
-                            actualizarProgressBar(); // Actualizar la barra después de obtener los datos
-                        } else {
-                            console.error('Error:', response.message);
-                        }
-                    }, 'json').fail(function (xhr, status, error) {
-                        console.error('AJAX Error:', status, error);
-                    });
-                }
-
-                //enter para agregar producto
-                $(document).on("keypress", "#productos", function (e) {
-                    if (e.which == 13) {
-                        Agregar_Producto();
-                    }
-                });
-
-                function Agregar_Producto() {
-                    if ($("#cantidad").val() == "") {
                         Swal.fire({
                             icon: 'error',
-                            title: 'Campo obligatorio',
-                            text: 'El campo Cantidad es obligatorio',
+                            title: 'Precio inválido',
+                            text: 'El producto no tiene un precio válido',
                             confirmButtonColor: '#2973B2'
                         });
-                        $("#cantidad").focus();
-                        return false;
+                        $("#monto_fijo").val("");
                     }
-                    if ($("#productos").val() == "") {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Campo obligatorio',
-                            text: 'El campo producto es obligatorio',
-                            confirmButtonColor: '#2973B2'
-                        });
-                        $("#productos").focus();
-                        return false;
-                    }
-                    var bandera = false;
-                    var codigo_barras = $("#productos").val().split("-")[0];
-                    var cantidad = $("#cantidad").val();
-                    //validar si el producto ya esta agregado
-                    $("#tabla_detalle tr").each(function () {
-                        console.log($(this).find("td:eq(1)").text() + "==" + codigo_barras);
-                        if ($(this).find("td:eq(1)").text() == codigo_barras) {
-                            cantidad = parseInt($(this).find("td:eq(0)").find("input").val()) + 1;
-                            $(this).find("td:eq(0)").find("input").val(cantidad);
-                            $(this).find("td:eq(4)").text("$" + Formato_Moneda(cantidad * Quita_Moneda($(this).find("td:eq(3)").text()), 2));
-                            SumarTotal();
-                            bandera = true;
-                            return false;
-                        }
-                    });
-                    if (bandera == false) {
-                        $.ajax({
-                            url: 'funciones/ventas.php',
-                            type: 'POST',
-                            data: {
-                                funcion: 'Agregar',
-                                codigo_barras: codigo_barras,
-                                cantidad: cantidad
-                            },
-                            success: function (response) {
-                                console.log(response);
-                                $("#tabla_detalle").append(response);
-                                $("#cantidad").val("1");
-                                $("#productos").val("");
-                                SumarTotal();
-                            }
-                        });
-                    } else {
-                        $("#cantidad").val("1");
-                        $("#productos").val("");
-                    }
-                }
-
-                // Reemplazar esta parte del código (la validación del cliente)
-                $(document).on("click", "#Guardar_Venta", async function () {
-                    // Validar que hay productos en la venta
-                    if ($("#tabla_detalle tr").length == 0) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Venta vacía',
-                            text: 'No hay productos en la venta',
-                            confirmButtonColor: '#2973B2'
-                        });
-                        return false;
-                    }
-
-                    // Mostrar modal de selección de pago
-                    $('#tipoPagoModal').modal('show');
-                });
-
-                // Botón Pago al Contado
-                $(document).on("click", "#btnContado", function () {
-                    $('#tipoPagoModal').modal('hide');
-                    guardarVenta("contado");
-                });
-
-                // Botón Pago a Crédito
-                $(document).on("click", "#btnCredito", async function () {
-                    // Obtener el valor del campo cliente
-                    var clienteInput = $("#clientes").val();
-
-                    // Validar que se haya seleccionado un cliente explícitamente
-                    if (!clienteInput || clienteInput.trim() === "") {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Cliente requerido',
-                            text: 'Para ventas a crédito debe seleccionar un cliente específico',
-                            confirmButtonColor: '#2973B2'
-                        });
-                        $("#clientes").focus();
-                        return false;
-                    }
-
-                    // Extraer el ID del cliente
-                    var clienteData = clienteInput.split("-");
-                    var idCliente = clienteData[0].trim();
-
-                    // Validar que no sea el cliente Mostrador (ID 1)
-                    if (idCliente === "1") {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Cliente inválido',
-                            text: 'No puede registrar créditos para ventas de mostrador. Seleccione un cliente válido.',
-                            confirmButtonColor: '#2973B2'
-                        });
-                        $("#clientes").focus();
-                        return false;
-                    }
-
-                    // Validar que el ID sea numérico
-                    if (!/^\d+$/.test(idCliente)) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'ID inválido',
-                            text: 'El ID del cliente no es válido',
-                            confirmButtonColor: '#2973B2'
-                        });
-                        $("#clientes").focus();
-                        return false;
-                    }
-
-                    // Mostrar diálogo para días de crédito
-                    const { value: diasCredito } = await Swal.fire({
-                        title: 'Días de crédito',
-                        input: 'number',
-                        inputLabel: 'Ingrese los días de crédito',
-                        inputValue: 30,
-                        inputAttributes: {
-                            min: 1,
-                            step: 1
-                        },
-                        showCancelButton: true,
-                        confirmButtonColor: '#2973B2',
-                        cancelButtonColor: '#d33',
-                        inputValidator: (value) => {
-                            if (!value || value <= 0) {
-                                return 'Debe ingresar un número válido de días';
-                            }
-                        }
-                    });
-
-                    if (diasCredito === undefined) return;
-
-                    $('#tipoPagoModal').modal('hide');
-                    guardarVenta("credito", parseInt(diasCredito));
-                });
-
-                // Función para guardar la venta
-                function guardarVenta(tipoPago, diasCredito = 0) {
-                    var clienteData = $("#clientes").val().split("-");
-                    var idCliente = "1";
-                    var nombreCliente = "Mostrador";
-
-                    if (clienteData.length >= 2 && clienteData[0]) {
-                        idCliente = clienteData[0].trim();
-                        nombreCliente = clienteData[1].trim() + " " + (clienteData[2] || "") + " " + (clienteData[3] || "");
-                    }
-
-                    // Preparar array de productos
-                    var productos = [];
-                    $("#tabla_detalle tr").each(function () {
-                        var producto = {
-                            cantidad: parseInt($(this).find("td:eq(0)").find("input").val()) || 1,
-                            codigo_barras: $(this).find("td:eq(1)").text().trim(),
-                            id_productos: $(this).find("td:eq(1)").attr("id_productos"),
-                            precio: parseFloat(Quita_Moneda($(this).find("td:eq(3)").text())) || 0
-                        };
-
-                        if (!producto.id_productos || producto.precio <= 0) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error en producto',
-                                text: `Datos incorrectos para el producto: ${producto.codigo_barras}`,
-                                confirmButtonColor: '#2973B2'
-                            });
-                            return false;
-                        }
-
-                        productos.push(producto);
-                    });
-
-                    // Preparar datos para enviar
-                    var ventaData = {
-                        funcion: 'Guardar_Venta',
-                        idclientes: idCliente,
-                        nombre_cliente: nombreCliente,
-                        total: parseFloat(Quita_Moneda($("#total").text())) || 0,
-                        efectivo: parseFloat(Quita_Moneda($("#efectivo").val())) || 0,
-                        cambio: parseFloat(Quita_Moneda($("#cambio").text())) || 0,
-                        Detalle: productos,
-                        tipo_pago: tipoPago,
-                        dias_credito: diasCredito
-                    };
-
-                    // Validaciones
-                    if (ventaData.total <= 0) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Total inválido',
-                            text: 'El total de la venta debe ser mayor a cero',
-                            confirmButtonColor: '#2973B2'
-                        });
-                        return false;
-                    }
-
-                    if (tipoPago === "contado" && ventaData.efectivo < ventaData.total) {
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Efectivo insuficiente',
-                            text: 'El efectivo no puede ser menor al total',
-                            confirmButtonColor: '#2973B2'
-                        });
-                        $("#efectivo").focus();
-                        return false;
-                    }
-
-                    // Enviar datos al servidor
-                    $.ajax({
-                        url: 'funciones/ventas.php',
-                        type: 'POST',
-                        data: ventaData,
-                        dataType: 'text',
-                        success: function (response) {
-                            console.log(response);
-                            var folio = response;
-                            if (folio > 0) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: '¡Venta guardada!',
-                                    html: `Venta guardada correctamente.<br>Folio: <strong>${response}</strong>`,
-                                    confirmButtonColor: '#2973B2'
-                                });
-                                bandera = false;
-
-                                // Abrir ticket en nueva pestaña
-                                var ticketWindow = window.open("ticket_venta.php?folio=" + folio, '_blank');
-
-                                // Recargar página para limpiar el formulario
-                                setTimeout(function () {
-                                    location.reload();
-                                }, 1000);
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Error',
-                                    text: 'Ocurrió un error al guardar la venta',
-                                    footer: `Detalles: ${response}`,
-                                    confirmButtonColor: '#2973B2'
-                                });
-                                console.error("Respuesta del servidor:", response);
-                            }
-                        },
-                        error: function (xhr, status, error) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error de conexión',
-                                text: 'Error en la comunicación con el servidor',
-                                footer: `Detalles: ${error}`,
-                                confirmButtonColor: '#2973B2'
-                            });
-                            console.error("AJAX Error:", status, error);
-                        }
-                    });
-                }
-
-                // si el producto ya esta agregado cambiar la cantidad
-                $(document).on("change", ".cantidad", function () {
-                    var codigo_barras = $(this).val().split("-")[0];
-                    var cantidad = 1;
-                    $("#tabla_detalle tr").each(function () {
-                        if ($(this).find("td:eq(1)").text() == codigo_barras) {
-                            cantidad = parseInt($(this).find("td:eq(0)").find("input").val()) + 1;
-                            $(this).find("td:eq(0)").find("input").val(cantidad);
-                            $(this).find("td:eq(4)").text("$" + Formato_Moneda(cantidad * Quita_Moneda($(this).find("td:eq(3)").text()), 2));
-                            SumarTotal();
-                        }
-                    });
-                });
-
-                $(document).on("click", "#agregar_producto", function () {
-                    Agregar_Producto();
-                });
-
-                function SumarTotal() {
-                    var total = 0;
-                    $("#tabla_detalle tr").each(function () {
-                        total += Quita_Moneda($(this).find("td:eq(4)").text());
-                    });
-                    $("#total").text("$" + Formato_Moneda(total, 2));
-                }
-
-                $(document).on("click", ".eliminar", async function () {
-                    const { isConfirmed } = await Swal.fire({
-                        title: '¿Estás seguro?',
-                        text: "¿Estás seguro de eliminar el producto?",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#2973B2',
-                        cancelButtonColor: '#d33',
-                        confirmButtonText: 'Sí, eliminar',
-                        cancelButtonText: 'Cancelar'
-                    });
-
-                    if (isConfirmed) {
-                        $(this).parent().parent().remove();
-                        SumarTotal();
-                    }
-                });
-
-                //change cantidad
-                $(document).on("change", ".cantidad", function () {
-                    var cantidad = $(this).val();
-                    if (cantidad == "" || cantidad <= 0) {
-                        cantidad = 1;
-                        $(this).val(1);
-                    }
-                    var precio = Quita_Moneda($(this).parent().parent().find("td:eq(3)").text());
-                    $(this).parent().parent().find("td:eq(4)").text("$" + Formato_Moneda(cantidad * precio, 2));
-                    SumarTotal();
-                });
-
-                function Formato_Moneda(n, c, d, t) {
-                    var c = isNaN(c = Math.abs(c)) ? 2 : c,
-                        d = d == undefined ? "." : d,
-                        t = t == undefined ? "," : t,
-                        s = n < 0 ? "-" : "",
-                        i = parseInt(n = Math.abs(+n || 0).toFixed(c)) + "",
-                        j = (j = i.length) > 3 ? j % 3 : 0;
-                    return s + (j ? i.substr(0, j) + t : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : "");
-                }
-
-                function Quita_Moneda(n) {
-                    n = String(n);
-                    var s = parseFloat(n.replace(",", "").replace("$", ""));
-                    if (isNaN(s)) s = 0;
-                    return s;
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error AJAX:', error);
                 }
             });
-        </script>
+        }
+    });
+
+    // Ejemplo de llamada después de una venta:
+    document.getElementById('Guardar_Venta').addEventListener('click', function () {
+        actualizarProgressBar();
+    });
+
+    // Actualizar ventas del día al cargar
+    actualizarTotalVentasDia();
+    
+    var bandera = true;
+    $(window).on('beforeunload', function (e) {
+        if (bandera) {
+            e.preventDefault();
+            e.returnValue = '¿Estás seguro de que quieres abandonar esta página? Los cambios no guardados se perderán.';
+            return '¿Estás seguro de que quieres abandonar esta página? Los cambios no guardados se perderán.';
+        }
+    });
+
+    // Validar el cambio del efectivo
+    $(document).on("change", "#efectivo", function () {
+        var total = Quita_Moneda($("#total").text());
+        var efectivo = Quita_Moneda($(this).val());
+        if (efectivo < total) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Advertencia',
+                text: 'El efectivo no puede ser menor al total',
+                confirmButtonColor: '#2973B2'
+            });
+            $(this).val(total);
+            $("#cambio").text("$" + Formato_Moneda(0, 2));
+        } else {
+            $("#cambio").text("$" + Formato_Moneda(efectivo - total, 2));
+        }
+    });
+
+    function actualizarTotalVentasDia() {
+        $.post('funciones/ventas.php', {
+            funcion: 'ObtenerVentasDelDia'
+        }, function (response) {
+            if (response.success) {
+                $('#total-ventas-dia').text('$' + response.total_dia);
+                actualizarProgressBar();
+            } else {
+                console.error('Error:', response.message);
+            }
+        }, 'json').fail(function (xhr, status, error) {
+            console.error('AJAX Error:', status, error);
+        });
+    }
+
+    // Eventos para agregar producto
+    $(document).on("keypress", "#productos, #monto_fijo", function (e) {
+        if (e.which == 13) {
+            Agregar_Producto();
+        }
+    });
+
+    $(document).on("click", "#agregar_producto", function () {
+        Agregar_Producto();
+    });
+
+    function Agregar_Producto() {
+        var tipo_venta = $("input[name='tipo_cantidad']:checked").attr("id");
+        var productoVal = $("#productos").val();
+        
+        if (!productoVal) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Producto requerido',
+                text: 'Debe seleccionar un producto',
+                confirmButtonColor: '#2973B2'
+            });
+            return false;
+        }
+
+        var codigo_barras = productoVal.split("-")[0];
+        var cantidad = parseFloat($("#cantidad").val());
+
+        // Manejo diferente para monto vs cantidad
+        if (tipo_venta === "por_monto") {
+            var monto = parseFloat($("#monto_fijo").val()) || 0;
+            if (monto <= 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Monto inválido',
+                    text: 'El monto debe ser mayor a cero',
+                    confirmButtonColor: '#2973B2'
+                });
+                return false;
+            }
+            
+            // Forzar el cálculo de cantidad si es por monto
+            if (isNaN(cantidad) || cantidad <= 0) {
+                $("#monto_fijo").trigger("input");
+                return false;
+            }
+        } else {
+            if (isNaN(cantidad) || cantidad <= 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Cantidad inválida',
+                    text: 'La cantidad debe ser mayor a cero',
+                    confirmButtonColor: '#2973B2'
+                });
+                $("#cantidad").val("1").focus();
+                return false;
+            }
+        }
+
+        // Verificar existencias
+        $.ajax({
+            url: 'funciones/ventas.php',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                funcion: 'VerificarExistencias',
+                codigo_barras: codigo_barras
+            },
+            success: function (response) {
+                if (response.error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.message,
+                        confirmButtonColor: '#2973B2'
+                    });
+                    return;
+                }
+
+                var max_cantidad = response.permite_decimal ? response.existencias : Math.floor(response.existencias);
+
+                if (cantidad > max_cantidad) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Existencias insuficientes',
+                        html: `No hay suficientes existencias.<br>
+                       Disponibles: <strong>${max_cantidad}</strong><br>
+                       Solicitadas: <strong>${cantidad}</strong>`,
+                        confirmButtonColor: '#2973B2'
+                    });
+                    return;
+                }
+
+                // Si hay existencias, proceder a agregar
+                agregarProductoATabla(codigo_barras, cantidad, response.permite_decimal);
+            },
+            error: function (xhr, status, error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo verificar las existencias',
+                    confirmButtonColor: '#2973B2'
+                });
+            }
+        });
+    }
+
+    function agregarProductoATabla(codigo_barras, cantidad, permite_decimal) {
+        // Verificar si el producto ya está en la tabla
+        var productoExistente = false;
+        $("#tabla_detalle tr").each(function () {
+            if ($(this).find("td:eq(1)").text() == codigo_barras) {
+                var nuevaCantidad = parseFloat($(this).find(".cantidad").val()) + cantidad;
+                $(this).find(".cantidad").val(nuevaCantidad.toFixed(2));
+                var precio = Quita_Moneda($(this).find("td:eq(3)").text());
+                $(this).find("td:eq(4)").text("$" + Formato_Moneda(nuevaCantidad * precio, 2));
+                SumarTotal();
+                productoExistente = true;
+                return false;
+            }
+        });
+
+        if (productoExistente) {
+            $("#cantidad").val("1");
+            $("#monto_fijo").val("");
+            $("#productos").val("");
+            return;
+        }
+
+        // Si el producto no existe en la tabla, hacer la petición para agregarlo
+        $.ajax({
+            url: 'funciones/ventas.php',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                funcion: 'Agregar',
+                codigo_barras: codigo_barras,
+                cantidad: cantidad
+            },
+            success: function (response) {
+                if (response.error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.message,
+                        confirmButtonColor: '#2973B2'
+                    });
+                    return;
+                }
+
+                var $newRow = $(response.html);
+                $newRow.find(".cantidad")
+                    .data('old-value', cantidad)
+                    .attr('min', '0.01')
+                    .attr('max', response.permite_decimal ? response.existencias : Math.floor(response.existencias));
+
+                $("#tabla_detalle").append($newRow);
+                SumarTotal();
+                $("#cantidad").val("1");
+                $("#monto_fijo").val("");
+                $("#productos").val("").focus();
+            },
+            error: function (xhr, status, error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al agregar el producto: ' + error,
+                    confirmButtonColor: '#2973B2'
+                });
+            }
+        });
+    }
+
+    // Guardar venta
+    $(document).on("click", "#Guardar_Venta", async function () {
+        if ($("#tabla_detalle tr").length == 0) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Venta vacía',
+                text: 'No hay productos en la venta',
+                confirmButtonColor: '#2973B2'
+            });
+            return false;
+        }
+
+        $('#tipoPagoModal').modal('show');
+    });
+
+    // Botón Pago al Contado
+    $(document).on("click", "#btnContado", function () {
+        $('#tipoPagoModal').modal('hide');
+        guardarVenta("contado");
+    });
+
+    // Botón Pago a Crédito
+    $(document).on("click", "#btnCredito", async function () {
+        var clienteInput = $("#clientes").val();
+
+        if (!clienteInput || clienteInput.trim() === "") {
+            Swal.fire({
+                icon: 'error',
+                title: 'Cliente requerido',
+                text: 'Para ventas a crédito debe seleccionar un cliente específico',
+                confirmButtonColor: '#2973B2'
+            });
+            $("#clientes").focus();
+            return false;
+        }
+
+        var clienteData = clienteInput.split("-");
+        var idCliente = clienteData[0].trim();
+
+        if (idCliente === "1") {
+            Swal.fire({
+                icon: 'error',
+                title: 'Cliente inválido',
+                text: 'No puede registrar créditos para ventas de mostrador. Seleccione un cliente válido.',
+                confirmButtonColor: '#2973B2'
+            });
+            $("#clientes").focus();
+            return false;
+        }
+
+        if (!/^\d+$/.test(idCliente)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'ID inválido',
+                text: 'El ID del cliente no es válido',
+                confirmButtonColor: '#2973B2'
+            });
+            $("#clientes").focus();
+            return false;
+        }
+
+        const { value: diasCredito } = await Swal.fire({
+            title: 'Días de crédito',
+            input: 'number',
+            inputLabel: 'Ingrese los días de crédito',
+            inputValue: 30,
+            inputAttributes: {
+                min: 1,
+                step: 1
+            },
+            showCancelButton: true,
+            confirmButtonColor: '#2973B2',
+            cancelButtonColor: '#d33',
+            inputValidator: (value) => {
+                if (!value || value <= 0) {
+                    return 'Debe ingresar un número válido de días';
+                }
+            }
+        });
+
+        if (diasCredito === undefined) return;
+
+        $('#tipoPagoModal').modal('hide');
+        guardarVenta("credito", parseInt(diasCredito));
+    });
+
+    function guardarVenta(tipoPago, diasCredito = 0) {
+        var clienteData = $("#clientes").val().split("-");
+        var idCliente = "1";
+        var nombreCliente = "Mostrador";
+
+        if (clienteData.length >= 2 && clienteData[0]) {
+            idCliente = clienteData[0].trim();
+            nombreCliente = clienteData[1].trim() + " " + (clienteData[2] || "") + " " + (clienteData[3] || "");
+        }
+
+        // Preparar array de productos
+        var productos = [];
+        $("#tabla_detalle tr").each(function () {
+            var producto = {
+                cantidad: parseFloat($(this).find("td:eq(0)").find("input").val()) || 1,
+                codigo_barras: $(this).find("td:eq(1)").text().trim(),
+                id_productos: $(this).find("td:eq(1)").attr("id_productos"),
+                precio: parseFloat(Quita_Moneda($(this).find("td:eq(3)").text())) || 0
+            };
+
+            if (!producto.id_productos || producto.precio <= 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error en producto',
+                    text: `Datos incorrectos para el producto: ${producto.codigo_barras}`,
+                    confirmButtonColor: '#2973B2'
+                });
+                return false;
+            }
+
+            productos.push(producto);
+        });
+
+        // Preparar datos para enviar
+        var ventaData = {
+            funcion: 'Guardar_Venta',
+            idclientes: idCliente,
+            nombre_cliente: nombreCliente,
+            total: parseFloat(Quita_Moneda($("#total").text())) || 0,
+            efectivo: parseFloat(Quita_Moneda($("#efectivo").val())) || 0,
+            cambio: parseFloat(Quita_Moneda($("#cambio").text())) || 0,
+            Detalle: productos,
+            tipo_pago: tipoPago,
+            dias_credito: diasCredito
+        };
+
+        // Validaciones
+        if (ventaData.total <= 0) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Total inválido',
+                text: 'El total de la venta debe ser mayor a cero',
+                confirmButtonColor: '#2973B2'
+            });
+            return false;
+        }
+
+        if (tipoPago === "contado" && ventaData.efectivo < ventaData.total) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Efectivo insuficiente',
+                text: 'El efectivo no puede ser menor al total',
+                confirmButtonColor: '#2973B2'
+            });
+            $("#efectivo").focus();
+            return false;
+        }
+
+        // Enviar datos al servidor
+        $.ajax({
+            url: 'funciones/ventas.php',
+            type: 'POST',
+            data: ventaData,
+            dataType: 'text',
+            success: function (response) {
+                console.log(response);
+                var folio = response;
+                if (folio > 0) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Venta guardada!',
+                        html: `Venta guardada correctamente.<br>Folio: <strong>${response}</strong>`,
+                        confirmButtonColor: '#2973B2'
+                    });
+                    bandera = false;
+
+                    // Abrir ticket en nueva pestaña
+                    var ticketWindow = window.open("ticket_venta.php?folio=" + folio, '_blank');
+
+                    // Recargar página para limpiar el formulario
+                    setTimeout(function () {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Ocurrió un error al guardar la venta',
+                        footer: `Detalles: ${response}`,
+                        confirmButtonColor: '#2973B2'
+                    });
+                    console.error("Respuesta del servidor:", response);
+                }
+            },
+            error: function (xhr, status, error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error de conexión',
+                    text: 'Error en la comunicación con el servidor',
+                    footer: `Detalles: ${error}`,
+                    confirmButtonColor: '#2973B2'
+                });
+                console.error("AJAX Error:", status, error);
+            }
+        });
+    }
+
+    // Cambiar cantidad de producto existente
+    $(document).on("change", ".cantidad", function () {
+        var input = $(this);
+        var nuevaCantidad = parseFloat(input.val()) || 0;
+        var fila = input.closest("tr");
+        var codigoBarras = fila.find("td:eq(1)").text().trim();
+        var precio = Quita_Moneda(fila.find("td:eq(3)").text());
+
+        if (isNaN(nuevaCantidad) || nuevaCantidad <= 0) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Valor inválido',
+                text: 'La cantidad debe ser mayor a cero',
+                confirmButtonColor: '#2973B2'
+            });
+            input.val(input.data('old-value') || (input.attr('step') === '0.01' ? '0.01' : '1'));
+            return;
+        }
+
+        $.ajax({
+            url: 'funciones/ventas.php',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                funcion: 'VerificarExistencias',
+                codigo_barras: codigoBarras
+            },
+            success: function (response) {
+                var max_cantidad = response.permite_decimal ? response.existencias : Math.floor(response.existencias);
+
+                if (nuevaCantidad > max_cantidad) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Existencias insuficientes',
+                        html: `No hay suficientes existencias.<br>
+                       Disponibles: <strong>${max_cantidad}</strong><br>
+                       Solicitadas: <strong>${nuevaCantidad}</strong>`,
+                        confirmButtonColor: '#2973B2'
+                    });
+                    input.val(input.data('old-value') || (input.attr('step') === '0.01' ? '0.01' : '1'));
+                    return;
+                }
+
+                input.data('old-value', nuevaCantidad);
+                fila.find("td:eq(4)").text("$" + Formato_Moneda(nuevaCantidad * precio, 2));
+                SumarTotal();
+            },
+            error: function () {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo verificar las existencias',
+                    confirmButtonColor: '#2973B2'
+                });
+                input.val(input.data('old-value') || (input.attr('step') === '0.01' ? '0.01' : '1'));
+            }
+        });
+    });
+
+    // Eliminar producto
+    $(document).on("click", ".eliminar", async function () {
+        const { isConfirmed } = await Swal.fire({
+            title: '¿Estás seguro?',
+            text: "¿Estás seguro de eliminar el producto?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#2973B2',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (isConfirmed) {
+            $(this).parent().parent().remove();
+            SumarTotal();
+        }
+    });
+
+    function SumarTotal() {
+        var total = 0;
+        $("#tabla_detalle tr").each(function () {
+            total += Quita_Moneda($(this).find("td:eq(4)").text());
+        });
+        $("#total").text("$" + Formato_Moneda(total, 2));
+        // Actualizar cambio si hay efectivo
+        if (parseFloat(Quita_Moneda($("#efectivo").val()))) {
+            $("#efectivo").trigger("change");
+        }
+    }
+
+    function Formato_Moneda(n, c, d, t) {
+        var c = isNaN(c = Math.abs(c)) ? 2 : c,
+            d = d == undefined ? "." : d,
+            t = t == undefined ? "," : t,
+            s = n < 0 ? "-" : "",
+            i = parseInt(n = Math.abs(+n || 0).toFixed(c)) + "",
+            j = (j = i.length) > 3 ? j % 3 : 0;
+        return s + (j ? i.substr(0, j) + t : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : "");
+    }
+
+    function Quita_Moneda(n) {
+        n = String(n);
+        var s = parseFloat(n.replace(",", "").replace("$", ""));
+        if (isNaN(s)) s = 0;
+        return s;
+    }
+});
+</script>
 </body>

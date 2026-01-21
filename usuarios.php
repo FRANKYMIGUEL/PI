@@ -61,6 +61,13 @@
     .btn-custom1:hover {
         background-color: rgb(204, 27, 27);
     }
+
+    .banner {
+        background-color: #2973B2;
+        /* Azul intenso */
+        color: white;
+        padding: 5px;
+    }
 </style>
 
 <body>
@@ -88,7 +95,7 @@
 
     <div class="container-fluid">
         <div class="row">
-            <div class="col-10 text-center">
+            <div class="col-12 text-center banner">
                 <h1 class="">
                     <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor"
                         class="bi bi-person-lines-fill" viewBox="0 0 16 16">
@@ -97,7 +104,9 @@
                     </svg> Usuarios
                 </h1>
             </div>
-            <div class="col-2 text-center mt-5">
+            <div class="col-10">
+            </div>
+            <div class="col-2 text-center mt-31">
                 <button class="btn-custom w-50" id="nuevo" data-bs-toggle="modal" data-bs-target="#modal"> Nuevo <svg
                         xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                         class="bi bi-plus-circle" viewBox="0 0 16 16">

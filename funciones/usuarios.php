@@ -37,7 +37,7 @@ if ($_POST['funcion'] == 'Guardar') {
     $query = "INSERT INTO empleados SET 
         usuario='" . $_POST['usuario'] . "', 
         contrasena='" . $_POST['contrasena'] . "', 
-        nombre='" . strtoupper($_POST['nombre']) . "', 
+        nombre='" . ($_POST['nombre']) . "', 
         telefono='" . $_POST['telefono'] . "', 
         id_rol=" . $_POST['id_rol'];
 
@@ -62,7 +62,7 @@ if ($_POST['funcion'] == 'Editar') {
     // Actualizar empleado sin cambiar la contraseña
     $query = "UPDATE empleados SET 
         usuario='" . $_POST['usuario'] . "', 
-        nombre='" . strtoupper($_POST['nombre']) . "', 
+        nombre='" . ($_POST['nombre']) . "', 
         telefono='" . $_POST['telefono'] . "', 
         id_rol=" . $_POST['id_rol'] . " 
         WHERE id_empleado=" . $id;

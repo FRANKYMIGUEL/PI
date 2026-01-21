@@ -64,24 +64,31 @@
 
   /* Estilos para las existencias (fondo y texto) */
   .existencias-rojo {
-    background-color:rgb(244, 165, 165) !important;
+    background-color: rgb(244, 165, 165) !important;
     /* Rojo claro */
     color: #cc0000 !important;
     /* Rojo oscuro para el texto */
   }
 
   .existencias-amarillo {
-    background-color:rgb(251, 251, 182) !important;
+    background-color: rgb(251, 251, 182) !important;
     /* Amarillo claro */
-    color:rgb(107, 80, 0) !important;
+    color: rgb(107, 80, 0) !important;
     /* Amarillo oscuro para el texto */
   }
 
   .existencias-verde {
-    background-color:rgb(156, 255, 156) !important;
+    background-color: rgb(156, 255, 156) !important;
     /* Verde claro */
     color: #006600 !important;
     /* Verde oscuro para el texto */
+  }
+
+  .banner {
+    background-color: #2973B2;
+    /* Azul intenso */
+    color: white;
+    padding: 5px;
   }
 </style>
 
@@ -109,14 +116,16 @@
 
   <div class="container-fluid">
     <div class="row">
-      <div class="col-10 text-center">
+      <div class="col-12 text-center banner">
         <h1 class="">
-          <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-box-seam-fill"
+          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-box-seam-fill"
             viewBox="0 0 16 16">
             <path
               d="M15.528 2.973a.75.75 0 0 1 .472.696v8.662a.75.75 0 0 1-.472.696l-7.25 2.9a.75.75 0 0 1-.557 0l-7.25-2.9A.75.75 0 0 1 0 12.331V3.669a.75.75 0 0 1 .471-.696L7.443.184a.75.75 0 0 1 1.114 0zM10.404 2 4.25 4.461 1.846 3.5 1 3.839v.4l6.5 2.6v7.922l.5.2.5-.2V6.84l6.5-2.6v-.4l-.846-.339L8 5.961 5.596 5l6.154-2.461z" />
           </svg> Productos
         </h1>
+      </div>
+      <div class="col-10">
       </div>
       <div class="col-2 text-center mt-3">
         <button class="btn-custom w-50" id="nuevo" data-bs-toggle="modal" data-bs-target="#modal"> Nuevo <svg
@@ -133,7 +142,8 @@
             <tr>
               <th scope="col">Nombre</th>
               <th scope="col">Código de Barras</th>
-              <th scope="col">Precio</th>
+              <th scope="col">Precio Unitario</th>
+              <th scope="col">Precio de Venta</th>
               <th scope="col">Existencias</th>
               <th scope="col">Unidad de Medida</th>
               <th scope="col">Categoría</th>
@@ -164,59 +174,40 @@
     $(document).ready(function () {
       Tabla();
 
-      // Función para guardar un nuevo producto
+      // Modificar la validación del modal para incluir precio_venta
       $(document).on("click", "#Guardar_Nuevo", function () {
         if ($("#codigo_barras").val() == "") {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'El campo Código de Barras es obligatorio',
-          });
+          Swal.fire({ icon: 'error', title: 'Error', text: 'El campo Código de Barras es obligatorio' });
           $("#codigo_barras").focus();
           return false;
         }
         if ($("#nombre").val() == "") {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'El campo Nombre es obligatorio',
-          });
+          Swal.fire({ icon: 'error', title: 'Error', text: 'El campo Nombre es obligatorio' });
           $("#nombre").focus();
           return false;
         }
         if ($("#precio").val() == "") {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'El campo Precio es obligatorio',
-          });
+          Swal.fire({ icon: 'error', title: 'Error', text: 'El campo Precio Unitario es obligatorio' });
           $("#precio").focus();
           return false;
         }
+        if ($("#precio_venta").val() == "") {
+          Swal.fire({ icon: 'error', title: 'Error', text: 'El campo Precio de Venta es obligatorio' });
+          $("#precio_venta").focus();
+          return false;
+        }
         if ($("#existencias").val() == "") {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'El campo Existencias es obligatorio',
-          });
+          Swal.fire({ icon: 'error', title: 'Error', text: 'El campo Existencias es obligatorio' });
           $("#existencias").focus();
           return false;
         }
         if ($("#unidad_medida").val() == "") {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'El campo Unidad de Medida es obligatorio',
-          });
+          Swal.fire({ icon: 'error', title: 'Error', text: 'El campo Unidad de Medida es obligatorio' });
           $("#unidad_medida").focus();
           return false;
         }
         if ($("#categoria").val() == "") {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'El campo Categoría es obligatorio',
-          });
+          Swal.fire({ icon: 'error', title: 'Error', text: 'El campo Categoría es obligatorio' });
           $("#categoria").focus();
           return false;
         }
@@ -229,36 +220,20 @@
             codigo_barras: $("#codigo_barras").val(),
             nombre: $("#nombre").val(),
             precio: $("#precio").val(),
+            precio_venta: $("#precio_venta").val(),
             existencias: $("#existencias").val(),
             unidad_medida: $("#unidad_medida option:selected").val(),
             categoria: $("#categoria option:selected").val()
           },
           success: function (response) {
             if (response == "El código de barras ya existe") {
-              Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: response,
-              });
+              Swal.fire({ icon: 'error', title: 'Error', text: response });
               return false;
             } else {
-              // Cerrar el modal
               $("#cerrar").click();
               $('#modal').modal('hide');
-
-              // Mostrar mensaje de éxito con temporizador
-              Swal.fire({
-                icon: 'success',
-                title: 'Éxito',
-                text: 'Producto agregado correctamente',
-                timer: 1000, // Duración de 1 segundo (1000 ms)
-                showConfirmButton: false, // No mostrar botón de confirmación
-              });
-
-              // Recargar la página después de que el mensaje se cierre
-              setTimeout(function () {
-                window.location.reload();
-              }, 1000); // Recargar después de 1 segundo
+              Swal.fire({ icon: 'success', title: 'Éxito', text: 'Producto agregado correctamente', timer: 1000, showConfirmButton: false });
+              setTimeout(function () { window.location.reload(); }, 1000);
             }
           }
         });
@@ -268,56 +243,37 @@
       $(document).on("click", "#Guardar_Edita", function () {
         var idregistros = $(this).attr('idregistros');
         if ($("#codigo_barras").val() == "") {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'El campo Código de Barras es obligatorio',
-          });
+          Swal.fire({ icon: 'error', title: 'Error', text: 'El campo Código de Barras es obligatorio' });
           $("#codigo_barras").focus();
           return false;
         }
         if ($("#nombre").val() == "") {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'El campo Nombre es obligatorio',
-          });
+          Swal.fire({ icon: 'error', title: 'Error', text: 'El campo Nombre es obligatorio' });
           $("#nombre").focus();
           return false;
         }
         if ($("#precio").val() == "") {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'El campo Precio es obligatorio',
-          });
+          Swal.fire({ icon: 'error', title: 'Error', text: 'El campo Precio Unitario es obligatorio' });
           $("#precio").focus();
           return false;
         }
+        if ($("#precio_venta").val() == "") {
+          Swal.fire({ icon: 'error', title: 'Error', text: 'El campo Precio de Venta es obligatorio' });
+          $("#precio_venta").focus();
+          return false;
+        }
         if ($("#existencias").val() == "") {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'El campo Existencias es obligatorio',
-          });
+          Swal.fire({ icon: 'error', title: 'Error', text: 'El campo Existencias es obligatorio' });
           $("#existencias").focus();
           return false;
         }
         if ($("#unidad_medida").val() == "") {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'El campo Unidad de Medida es obligatorio',
-          });
+          Swal.fire({ icon: 'error', title: 'Error', text: 'El campo Unidad de Medida es obligatorio' });
           $("#unidad_medida").focus();
           return false;
         }
         if ($("#categoria").val() == "") {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'El campo Categoría es obligatorio',
-          });
+          Swal.fire({ icon: 'error', title: 'Error', text: 'El campo Categoría es obligatorio' });
           $("#categoria").focus();
           return false;
         }
@@ -330,30 +286,16 @@
             codigo_barras: $("#codigo_barras").val(),
             nombre: $("#nombre").val(),
             precio: $("#precio").val(),
+            precio_venta: $("#precio_venta").val(),
             existencias: $("#existencias").val(),
             unidad_medida: $("#unidad_medida option:selected").val(),
             categoria: $("#categoria option:selected").val(),
             idregistros: idregistros
           },
           success: function (response) {
-            console.log(response);
-
-            // Cerrar el modal
             $("#cerrar").click();
-
-            // Mostrar mensaje de éxito
-            Swal.fire({
-              icon: 'success',
-              title: 'Éxito',
-              text: 'Cliente editado correctamente',
-              timer: 1000, // 5 segundos
-              showConfirmButton: false, // No mostrar botón de confirmación
-            });
-
-            // Recargar la página después de que el mensaje se cierre
-            setTimeout(function () {
-              window.location.reload();
-            }, 1000); // Recargar después de 5 segundos
+            Swal.fire({ icon: 'success', title: 'Éxito', text: 'Producto editado correctamente', timer: 1000, showConfirmButton: false });
+            setTimeout(function () { window.location.reload(); }, 1000);
           }
         });
       });
@@ -460,9 +402,9 @@
             zeroRecords: 'No se encontraron resultados',
           },
           drawCallback: function (settings) {
-            // Aplicar estilos dinámicos a la columna "Existencias"
+            // Aplicar estilos dinámicos a la columna "Existencias" (columna 4, índice 4)
             $('#productoTable tbody tr').each(function () {
-              var existenciasCell = $(this).find('td:eq(3)'); // Columna 3 (Existencias)
+              var existenciasCell = $(this).find('td:eq(4)'); // Columna 4 (Existencias)
               var existencias = parseInt(existenciasCell.text().trim()); // Convertir a número
 
               if (!isNaN(existencias)) {
@@ -470,11 +412,11 @@
                 existenciasCell.removeClass('existencias-rojo existencias-amarillo existencias-verde');
 
                 // Aplicar clases según el valor
-                if (existencias < 5) {
+                if (existencias <= 5) {  // 0-5 rojo
                   existenciasCell.addClass('existencias-rojo');
-                } else if (existencias >= 5 && existencias <= 10) {
+                } else if (existencias > 5 && existencias <= 10) {  // 5-10 amarillo
                   existenciasCell.addClass('existencias-amarillo');
-                } else {
+                } else {  // más de 10 verde
                   existenciasCell.addClass('existencias-verde');
                 }
               }
